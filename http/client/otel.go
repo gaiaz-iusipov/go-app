@@ -14,6 +14,8 @@ func spanNameFormatter(operation string, req *http.Request) string {
 	return operation
 }
 
+var _ http.RoundTripper = (*RoundTripper)(nil)
+
 type RoundTripper struct {
 	rt http.RoundTripper
 }
