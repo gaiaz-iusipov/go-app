@@ -66,8 +66,8 @@ func GetInfo() Info {
 	}
 }
 
-func LogAttrs() []slog.Attr {
-	return []slog.Attr{
+func LogValue() slog.Value {
+	return slog.GroupValue(
 		slog.String("name", Name()),
 		slog.String("version", Version()),
 		slog.String("vcs_ref", VCSRef()),
@@ -76,5 +76,5 @@ func LogAttrs() []slog.Attr {
 		slog.String("go_version", runtime.Version()),
 		slog.String("go_os", runtime.GOOS),
 		slog.String("go_arch", runtime.GOARCH),
-	}
+	)
 }
