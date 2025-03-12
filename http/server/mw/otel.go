@@ -2,6 +2,7 @@ package httpservermw
 
 import (
 	"net/http"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -9,7 +10,11 @@ import (
 
 func RoutePattern(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		otelhttp.WithRouteTag(req.Pattern, next).ServeHTTP(rw, req)
+		if i := strings.IndexByte(req.Pattern, '/'); i >= 0 {
+			otelhttp.WithRouteTag(req.Pattern[i:], next).ServeHTTP(rw, req)
+		} else {
+			next.ServeHTTP(rw, req)
+		}
 	})
 }
 
