@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"net"
 
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	grpcpkg "github.com/gaiaz-iusipov/go-app/grpc"
 )
@@ -16,17 +16,25 @@ import (
 var _ grpcpkg.Server = (*Server)(nil)
 
 func New(addr string, opts ...Option) Server {
-	grpcServer := grpc.NewServer(
-		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-	)
-	server := Server{
+	cfg := defaultConfig
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	grpcServer := grpc.NewServer(cfg.grpcOptions...)
+
+	for _, service := range cfg.services {
+		grpcServer.RegisterService(service.Desc(), service.Impl())
+	}
+
+	if cfg.enableReflection {
+		reflection.Register(grpcServer)
+	}
+
+	return Server{
 		addr:       addr,
 		grpcServer: grpcServer,
 	}
-	for _, opt := range opts {
-		opt(&server)
-	}
-	return server
 }
 
 type Server struct {
