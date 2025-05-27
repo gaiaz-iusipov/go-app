@@ -10,8 +10,8 @@ import (
 
 func RoutePattern(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if i := strings.IndexByte(req.Pattern, '/'); i >= 0 {
-			otelhttp.WithRouteTag(req.Pattern[i:], next).ServeHTTP(rw, req)
+		if idx := strings.IndexByte(req.Pattern, '/'); idx >= 0 {
+			otelhttp.WithRouteTag(req.Pattern[idx:], next).ServeHTTP(rw, req)
 		} else {
 			next.ServeHTTP(rw, req)
 		}

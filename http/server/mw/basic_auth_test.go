@@ -1,10 +1,11 @@
 package httpservermw_test
 
 import (
-	"github.com/alecthomas/assert/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/alecthomas/assert/v2"
 
 	httpheader "github.com/gaiaz-iusipov/go-app/http/header"
 	httpservermw "github.com/gaiaz-iusipov/go-app/http/server/mw"
@@ -19,9 +20,9 @@ func TestBasicAuth(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.Handle("/", mw(handler))
 
-	t.Run("without basic auth", func(t *testing.T) {
+	t.Run("unauthorized", func(t *testing.T) {
 		rec := httptest.NewRecorder()
-		req, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 
 		mux.ServeHTTP(rec, req)
 
@@ -30,9 +31,9 @@ func TestBasicAuth(t *testing.T) {
 		assert.Zero(t, rec.Body.String())
 	})
 
-	t.Run("with basic auth", func(t *testing.T) {
+	t.Run("authorized", func(t *testing.T) {
 		rec := httptest.NewRecorder()
-		req, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.SetBasicAuth("user", "pass")
 
 		mux.ServeHTTP(rec, req)
