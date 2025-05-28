@@ -1,11 +1,8 @@
 package httpclient
 
 import (
-	"context"
 	"net/http"
-	"net/http/httptrace"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
@@ -13,13 +10,13 @@ import (
 //
 // If the provided [http.RoundTripper] is nil, [http.DefaultTransport] will be used
 // as the base [http.RoundTripper].
-func New(transport http.RoundTripper) *http.Client {
+func New(transport http.RoundTripper, opts ...Option) *http.Client {
+	cfg := defaultConfig
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	return &http.Client{
-		Transport: RoundTripper{rt: otelhttp.NewTransport(transport,
-			otelhttp.WithSpanNameFormatter(spanNameFormatter),
-			otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-				return otelhttptrace.NewClientTrace(ctx)
-			}),
-		)},
+		Transport: RoundTripper{rt: otelhttp.NewTransport(transport, cfg.otelOpts...)},
 	}
 }

@@ -7,11 +7,11 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-func spanNameFormatter(operation string, req *http.Request) string {
+func spanNameFormatter(_ string, req *http.Request) string {
 	if requestName := requestNameFromContext(req.Context()); requestName != "" {
 		return requestName
 	}
-	return operation
+	return "HTTP " + req.Method
 }
 
 var _ http.RoundTripper = (*RoundTripper)(nil)
