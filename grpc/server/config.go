@@ -5,7 +5,6 @@ import (
 	"google.golang.org/grpc"
 
 	grpcpkg "github.com/gaiaz-iusipov/go-app/grpc"
-	grpchealthservice "github.com/gaiaz-iusipov/go-app/grpc/health"
 )
 
 type config struct {
@@ -17,9 +16,6 @@ type config struct {
 var defaultConfig = config{
 	grpcOptions: []grpc.ServerOption{
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-	},
-	services: []grpcpkg.Service{
-		grpchealthservice.New(),
 	},
 	enableReflection: true,
 }
