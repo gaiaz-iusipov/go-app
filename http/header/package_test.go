@@ -13,6 +13,7 @@ func Test(t *testing.T) {
 	headerKeys := []string{
 		httpheader.WWWAuthenticate,
 		httpheader.ContentType,
+		httpheader.CacheControl,
 	}
 	for _, headerKey := range headerKeys {
 		t.Run(headerKey, func(t *testing.T) {
