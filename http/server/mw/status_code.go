@@ -11,7 +11,7 @@ type responseWriterWrapper struct {
 
 func (rw *responseWriterWrapper) WriteHeader(code int) { rw.statusCode = code }
 
-func StatusCode(handlerFunc func(rw http.ResponseWriter, code int)) func(next http.Handler) http.Handler {
+func StatusCodeFn(handlerFunc func(rw http.ResponseWriter, code int)) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			rww := &responseWriterWrapper{ResponseWriter: rw, statusCode: http.StatusOK}
