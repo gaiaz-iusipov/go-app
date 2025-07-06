@@ -4,10 +4,14 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"go.opentelemetry.io/otel/trace"
+
 	httpheader "github.com/gaiaz-iusipov/go-app/http/header"
 )
 
-func Header(key, val string) func(next http.Handler) http.Handler {
+type Header struct{}
+
+func (Header) Add(key, val string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			rw.Header().Add(key, val)
@@ -16,11 +20,11 @@ func Header(key, val string) func(next http.Handler) http.Handler {
 	}
 }
 
-func HeaderImmutable(next http.Handler) http.Handler {
-	return Header(httpheader.CacheControl, httpheader.CacheControlImmutable)(next)
+func (h Header) Immutable(next http.Handler) http.Handler {
+	return h.Add(httpheader.CacheControl, httpheader.CacheControlImmutable)(next)
 }
 
-func ContentTypeByExt(contentTypeByExt map[string]string) func(next http.Handler) http.Handler {
+func (Header) ContentTypeByExt(contentTypeByExt map[string]string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			ext := filepath.Ext(req.URL.Path)
@@ -31,4 +35,13 @@ func ContentTypeByExt(contentTypeByExt map[string]string) func(next http.Handler
 			next.ServeHTTP(rw, req)
 		})
 	}
+}
+
+func (Header) TraceID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		if traceID := trace.SpanContextFromContext(req.Context()).TraceID(); traceID.IsValid() {
+			rw.Header().Add(httpheader.TraceID, traceID.String())
+		}
+		next.ServeHTTP(rw, req)
+	})
 }

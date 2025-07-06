@@ -14,6 +14,7 @@ func Test(t *testing.T) {
 		httpheader.WWWAuthenticate,
 		httpheader.ContentType,
 		httpheader.CacheControl,
+		httpheader.TraceID,
 	}
 	for _, headerKey := range headerKeys {
 		t.Run(headerKey, func(t *testing.T) {

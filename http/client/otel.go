@@ -1,9 +1,11 @@
 package httpclient
 
 import (
+	"context"
 	"net/http"
+	"net/http/httptrace"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/otel/attribute"
 )
 
@@ -14,21 +16,13 @@ func spanNameFormatter(_ string, req *http.Request) string {
 	return "HTTP " + req.Method
 }
 
-var _ http.RoundTripper = (*RoundTripper)(nil)
-
-type RoundTripper struct {
-	rt http.RoundTripper
+func clientTrace(ctx context.Context) *httptrace.ClientTrace {
+	return otelhttptrace.NewClientTrace(ctx)
 }
 
-func (rt RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	ctx := req.Context()
-
-	if requestName := requestNameFromContext(ctx); requestName != "" {
-		labeler, _ := otelhttp.LabelerFromContext(ctx)
-		labeler.Add(attribute.String("http.request_name", requestName))
-		ctx = otelhttp.ContextWithLabeler(ctx, labeler)
-		req = req.WithContext(ctx)
+func metricAttributesFn(req *http.Request) []attribute.KeyValue {
+	if requestName := requestNameFromContext(req.Context()); requestName != "" {
+		return []attribute.KeyValue{attribute.String("http.request_name", requestName)}
 	}
-
-	return rt.rt.RoundTrip(req)
+	return nil
 }

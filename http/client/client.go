@@ -17,6 +17,6 @@ func New(transport http.RoundTripper, opts ...Option) *http.Client {
 	}
 
 	return &http.Client{
-		Transport: RoundTripper{rt: otelhttp.NewTransport(transport, cfg.otelOpts...)},
+		Transport: otelhttp.NewTransport(transport, cfg.otelOpts...),
 	}
 }
