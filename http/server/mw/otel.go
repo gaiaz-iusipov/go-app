@@ -11,13 +11,16 @@ import (
 	httpheader "github.com/gaiaz-iusipov/go-app/http/header"
 )
 
-type OTEL struct{}
+type OTEL struct {
+	ServerName string
+}
 
 func (mw OTEL) Handler() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return Chain{
 			otelhttp.NewMiddleware("",
 				otelhttp.WithSpanNameFormatter(mw.spanNameFormatter),
+				otelhttp.WithServerName(mw.ServerName),
 			),
 			mw.routeMetrics,
 			mw.exportTraceID,

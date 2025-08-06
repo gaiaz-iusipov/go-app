@@ -12,7 +12,7 @@ var (
 	vcsRef    string
 	buildDate string
 	buildUser string
-	startDate = time.Now()
+	startDate = time.Now().UTC()
 )
 
 func Name() string {

@@ -2,7 +2,6 @@ package grpcserver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -53,7 +52,7 @@ func (s Server) Run(ctx context.Context) error {
 	}
 
 	go func() {
-		if serveErr := s.grpcServer.Serve(listener); !errors.Is(serveErr, grpc.ErrServerStopped) {
+		if serveErr := s.grpcServer.Serve(listener); serveErr != nil {
 			slog.ErrorContext(ctx, "failed to serve grpc server", "error", serveErr)
 		}
 	}()
