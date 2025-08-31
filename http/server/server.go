@@ -31,7 +31,7 @@ func (s Server) Run(ctx context.Context) error {
 	}
 
 	go func() {
-		if serveErr := s.httpServer.Serve(listener); !errors.Is(serveErr, http.ErrServerClosed) {
+		if serveErr := s.httpServer.Serve(listener); serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
 			slog.ErrorContext(ctx, "failed to serve http server", "error", serveErr)
 		}
 	}()
